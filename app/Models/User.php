@@ -19,7 +19,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'nickname', 'email', 'password', 'role', 'gender', 'tanggal_lahir'
+        'nickname', 'email', 'password', 'role', 'gender', 'tanggal_lahir', 'avatar', 'total_score'
     ];
 
     /**
@@ -43,13 +43,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    /**
-     * Hash the user's password automatically.
-     */
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = bcrypt($value);
     }
 }

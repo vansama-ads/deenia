@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Create User</h1>
-    <form action="{{ route('users.store') }}" method="POST">
+    <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <label>Nickname:</label>
         <input type="text" name="nickname" required><br>
