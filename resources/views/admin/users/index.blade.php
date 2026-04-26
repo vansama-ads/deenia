@@ -18,6 +18,7 @@
                 <thead>
                     <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
                         <th style="padding: 12px; text-align: left;">No</th>
+                        <th style="padding: 12px; text-align: left;">Avatar</th>
                         <th style="padding: 12px; text-align: left;">Nama</th>
                         <th style="padding: 12px; text-align: left;">Email</th>
                         <th style="padding: 12px; text-align: left;">Role</th>
@@ -29,6 +30,13 @@
                     @foreach($users as $index => $user)
                         <tr style="border-bottom: 1px solid #eee; hover: {background: #f9f9f9;}">
                             <td style="padding: 12px;">{{ $index + 1 }}</td>
+                            <td style="padding: 12px;">
+                                @if($user->avatar)
+                                    <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                                @else
+                                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">No Image</div>
+                                @endif
+                            </td>
                             <td style="padding: 12px; font-weight: 500;">{{ $user->nickname }}</td>
                             <td style="padding: 12px;">{{ $user->email }}</td>
                             <td style="padding: 12px;">

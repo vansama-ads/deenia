@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChapterController;
+use App\Http\Controllers\ActController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -52,14 +54,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('users/{id}/update-role', [UserController::class, 'updateRole'])->name('users.updateRole');
 
     // Admin Chapters
-    Route::get('/chapters', function () {
-        return view('admin.chapters.index');
-    })->name('chapters.index');
+    Route::resource('chapters', ChapterController::class)->names([
+        'index' => 'chapters.index',
+        'create' => 'chapters.create',
+        'store' => 'chapters.store',
+        'edit' => 'chapters.edit',
+        'update' => 'chapters.update',
+        'destroy' => 'chapters.destroy',
+    ]);
 
     // Admin Acts
-    Route::get('/acts', function () {
-        return view('admin.acts.index');
-    })->name('acts.index');
+    Route::resource('acts', ActController::class)->names([
+        'index' => 'acts.index',
+        'create' => 'acts.create',
+        'store' => 'acts.store',
+        'edit' => 'acts.edit',
+        'update' => 'acts.update',
+        'destroy' => 'acts.destroy',
+    ]);
 
     // Admin Lessons
     Route::get('/lessons', function () {

@@ -25,7 +25,7 @@
 
         <div class="card" style="text-align: center;">
             <div style="font-size: 32px; margin-bottom: 10px;">📚</div>
-            <h3 style="color: #667eea; font-size: 24px;">0</h3>
+            <h3 style="color: #667eea; font-size: 24px;">{{ \App\Models\Chapter::count() }}</h3>
             <p style="color: #666;">Total Chapters</p>
         </div>
 

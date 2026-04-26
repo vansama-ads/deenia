@@ -52,6 +52,8 @@ class UserController extends Controller
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|string|min:6',
                 'role' => 'required|in:user,admin',
+                'tanggal_lahir' => 'nullable|date',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
         } else {
             // Validasi untuk user (dengan password confirmation)
@@ -59,6 +61,8 @@ class UserController extends Controller
                 'nickname' => 'required',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required',
+                'tanggal_lahir' => 'nullable|date',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
         }
 
@@ -113,18 +117,33 @@ class UserController extends Controller
                 'nickname' => 'required|string|min:3|max:50',
                 'email' => 'required|email|unique:users,email,' . $id,
                 'role' => 'required|in:user,admin',
+                'tanggal_lahir' => 'nullable|date',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
-            $user->update([
+            $data = [
                 'nickname' => $request->nickname,
                 'email' => $request->email,
                 'role' => $request->role,
-            ]);
+                'tanggal_lahir' => $request->tanggal_lahir,
+            ];
+
+            // Handle avatar upload
+            if ($request->hasFile('avatar')) {
+                if ($user->avatar) {
+                    Storage::delete('public/' . $user->avatar);
+                }
+                $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            }
+
+            $user->update($data);
         } else {
             // Validasi untuk user
             $request->validate([
                 'nickname' => 'required',
                 'email' => 'required|email|unique:users,email,' . $id,
+                'tanggal_lahir' => 'nullable|date',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
             $data = $request->only(['nickname', 'email', 'gender', 'tanggal_lahir']);
