@@ -5,6 +5,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\ActController;
+use App\Http\Controllers\LessonController;
+use App\Models\Act;
+use App\Models\Chapter;
+use App\Models\Lesson;
+use App\Models\User;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,7 +43,12 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Admin Dashboard
     Route::get('/dashboard', function () {
-        return view('admin.dashboard');
+        return view('admin.dashboard', [
+            'totalUsers' => User::count(),
+            'totalChapters' => Chapter::count(),
+            'totalActs' => Act::count(),
+            'totalLessons' => Lesson::count(),
+        ]);
     })->name('dashboard');
 
     // Admin Users
@@ -74,7 +84,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     ]);
 
     // Admin Lessons
-    Route::get('/lessons', function () {
-        return view('admin.lessons.index');
-    })->name('lessons.index');
+    Route::resource('lessons', LessonController::class)->names([
+        'index' => 'lessons.index',
+        'create' => 'lessons.create',
+        'store' => 'lessons.store',
+        'show' => 'lessons.show',
+        'edit' => 'lessons.edit',
+        'update' => 'lessons.update',
+        'destroy' => 'lessons.destroy',
+    ]);
 });

@@ -19,25 +19,25 @@
         <!-- Stats Card -->
         <div class="card" style="text-align: center;">
             <div style="font-size: 32px; margin-bottom: 10px;">👥</div>
-            <h3 style="color: #667eea; font-size: 24px;">{{ \App\Models\User::count() }}</h3>
+            <h3 style="color: #667eea; font-size: 24px;">{{ $totalUsers }}</h3>
             <p style="color: #666;">Total Users</p>
         </div>
 
         <div class="card" style="text-align: center;">
             <div style="font-size: 32px; margin-bottom: 10px;">📚</div>
-            <h3 style="color: #667eea; font-size: 24px;">{{ \App\Models\Chapter::count() }}</h3>
+            <h3 style="color: #667eea; font-size: 24px;">{{ $totalChapters }}</h3>
             <p style="color: #666;">Total Chapters</p>
         </div>
 
         <div class="card" style="text-align: center;">
             <div style="font-size: 32px; margin-bottom: 10px;">🎭</div>
-            <h3 style="color: #667eea; font-size: 24px;">0</h3>
+            <h3 style="color: #667eea; font-size: 24px;">{{ $totalActs }}</h3>
             <p style="color: #666;">Total Acts</p>
         </div>
 
         <div class="card" style="text-align: center;">
             <div style="font-size: 32px; margin-bottom: 10px;">📖</div>
-            <h3 style="color: #667eea; font-size: 24px;">0</h3>
+            <h3 style="color: #667eea; font-size: 24px;">{{ $totalLessons }}</h3>
             <p style="color: #666;">Total Lessons</p>
         </div>
     </div>

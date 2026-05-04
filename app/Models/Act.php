@@ -28,4 +28,12 @@ class Act extends Model
     {
         return $this->belongsTo(Chapter::class);
     }
+
+    /**
+     * Get the lessons for the act.
+     */
+    public function lessons()
+    {
+        return $this->hasMany(Lesson::class);
+    }
 }
