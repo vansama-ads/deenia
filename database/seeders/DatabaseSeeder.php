@@ -17,9 +17,16 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Seeder untuk tabel Chapter
+        $this->call(ChapterSeeder::class);
+
+        // Seeder untuk tabel Act
+        $this->call(ActSeeder::class);
+
+        // Contoh seeder user (bisa dihapus jika tidak perlu)
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
     }
 }
