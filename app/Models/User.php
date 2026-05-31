@@ -19,7 +19,14 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'nickname', 'email', 'password', 'role', 'gender', 'tanggal_lahir', 'avatar', 'total_score'
+        'nickname',
+        'email',
+        'password',
+        'role',
+        'gender',
+        'tanggal_lahir',
+        'avatar',
+        'total_score'
     ];
 
     /**
@@ -31,6 +38,14 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Relasi ke progress quiz user.
+     */
+    public function quizProgress()
+    {
+        return $this->hasMany(UserQuizProgress::class);
+    }
 
     /**
      * Get the attributes that should be cast.

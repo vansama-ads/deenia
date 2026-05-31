@@ -309,6 +309,11 @@
                     <span>📖 Lessons</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('admin.quizzes.index') }}" class="@if(request()->routeIs('admin.quizzes.*')) active @endif">
+                    <span>🎯 Quizzes</span>
+                </a>
+            </li>
         </ul>
 
         <div class="sidebar-footer">

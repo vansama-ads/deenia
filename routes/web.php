@@ -93,4 +93,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         'update' => 'lessons.update',
         'destroy' => 'lessons.destroy',
     ]);
+
+    // Admin Quizzes
+    Route::resource('quizzes', App\Http\Controllers\Admin\QuizController::class)->names([
+        'index' => 'quizzes.index',
+        'create' => 'quizzes.create',
+        'store' => 'quizzes.store',
+        'edit' => 'quizzes.edit',
+        'update' => 'quizzes.update',
+        'destroy' => 'quizzes.destroy',
+    ]);
+
+    // Admin QuizPairs (nested under quizzes)
+    Route::get('quizzes/{quiz}/pairs', [App\Http\Controllers\Admin\QuizPairController::class, 'index'])->name('quizzes.pairs.index');
+    Route::get('quizzes/{quiz}/pairs/create', [App\Http\Controllers\Admin\QuizPairController::class, 'create'])->name('quizzes.pairs.create');
+    Route::post('quizzes/{quiz}/pairs', [App\Http\Controllers\Admin\QuizPairController::class, 'store'])->name('quizzes.pairs.store');
+    Route::get('quizzes/{quiz}/pairs/{pair}/edit', [App\Http\Controllers\Admin\QuizPairController::class, 'edit'])->name('quizzes.pairs.edit');
+    Route::put('quizzes/{quiz}/pairs/{pair}', [App\Http\Controllers\Admin\QuizPairController::class, 'update'])->name('quizzes.pairs.update');
+    Route::delete('quizzes/{quiz}/pairs/{pair}', [App\Http\Controllers\Admin\QuizPairController::class, 'destroy'])->name('quizzes.pairs.destroy');
 });
