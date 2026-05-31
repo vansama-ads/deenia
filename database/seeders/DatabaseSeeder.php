@@ -15,18 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
 
-        // Seeder untuk tabel Chapter
-        $this->call(ChapterSeeder::class);
-
-        // Seeder untuk tabel Act
-        $this->call(ActSeeder::class);
-
-        // Contoh seeder user (bisa dihapus jika tidak perlu)
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $this->call([
+                    ChapterSeeder::class,
+                    ActSeeder::class,
+                    QuizSeeder::class,
+                    QuizPairSeeder::class,
+        ]);
     }
 }
