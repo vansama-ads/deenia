@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Deenia - Belajar Kisah Para Nabi</title>
     <link rel="stylesheet" href="{{ asset('assets/css/landing-page.css') }}">
+    <link rel="icon" href="{{ asset('assets/images/favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
     <div class="landing-page">
