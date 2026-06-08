@@ -34,6 +34,9 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    // User My Progress
+    Route::get('/my-progress', [App\Http\Controllers\User\ProgressController::class, 'myProgress'])->name('my-progress');
+
     // User Management (Public)
     Route::resource('users', UserController::class);
     Route::patch('users/{id}/update-role', [UserController::class, 'updateRole'])->name('users.updateRole');
@@ -111,4 +114,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('quizzes/{quiz}/pairs/{pair}/edit', [App\Http\Controllers\Admin\QuizPairController::class, 'edit'])->name('quizzes.pairs.edit');
     Route::put('quizzes/{quiz}/pairs/{pair}', [App\Http\Controllers\Admin\QuizPairController::class, 'update'])->name('quizzes.pairs.update');
     Route::delete('quizzes/{quiz}/pairs/{pair}', [App\Http\Controllers\Admin\QuizPairController::class, 'destroy'])->name('quizzes.pairs.destroy');
+
+    // Admin User Quiz Progress
+    Route::resource('progresses', App\Http\Controllers\Admin\UserQuizProgressController::class)->names([
+        'index' => 'progresses.index',
+        'create' => 'progresses.create',
+        'store' => 'progresses.store',
+        'show' => 'progresses.show',
+        'edit' => 'progresses.edit',
+        'update' => 'progresses.update',
+        'destroy' => 'progresses.destroy',
+    ]);
 });

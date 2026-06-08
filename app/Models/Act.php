@@ -44,4 +44,12 @@ class Act extends Model
     {
         return $this->hasOne(Quiz::class);
     }
+
+    /**
+     * Get the quizzes for the act.
+     */
+    public function quizzes()
+    {
+        return $this->hasMany(Quiz::class);
+    }
 }

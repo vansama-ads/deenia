@@ -315,6 +315,11 @@
                     <span>🎯 Quizzes</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('admin.progresses.index') }}" class="@if(request()->routeIs('admin.progresses.*')) active @endif">
+                    <span>📊 Progress Quiz</span>
+                </a>
+            </li>
         </ul>
 
         <div class="sidebar-footer">
