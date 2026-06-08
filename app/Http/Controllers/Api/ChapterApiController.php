@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
+use App\Models\UserQuizProgress;
+use App\Services\QuizService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -11,12 +13,49 @@ use Throwable;
 
 class ChapterApiController extends Controller
 {
-    public function index()
+    protected QuizService $quizService;
+
+    public function __construct(QuizService $quizService)
+    {
+        $this->quizService = $quizService;
+    }
+    public function index(Request $request)
     {
         try {
-            $chapters = Chapter::with('acts')
+            $chapters = Chapter::with(['acts' => function ($query) {
+                $query->with(['lessons', 'quizzes'])->orderBy('order_number');
+            }])
                 ->orderBy('order_number')
                 ->get();
+
+            // Jika user_id diberikan, tambahkan is_unlocked dan quiz_progress per Act
+            if ($request->has('user_id')) {
+                $userId = (int) $request->user_id;
+                $chapters = $chapters->map(function ($chapter) use ($userId) {
+                    $chapter->acts = $chapter->acts->map(function ($act) use ($userId) {
+                        $act->is_unlocked = $this->quizService->isActUnlocked($userId, $act);
+
+                        // Ambil quiz progress user untuk Act ini
+                        $quiz = $act->quizzes->first();
+                        $act->quiz_progress = null;
+                        if ($quiz) {
+                            $progress = UserQuizProgress::where('user_id', $userId)
+                                ->where('quiz_id', $quiz->id)
+                                ->first();
+                            if ($progress) {
+                                $act->quiz_progress = [
+                                    'score' => $progress->score,
+                                    'passed' => $progress->passed,
+                                    'completed_at' => $progress->completed_at,
+                                ];
+                            }
+                        }
+
+                        return $act;
+                    });
+                    return $chapter;
+                });
+            }
 
             return $this->successResponse('Data berhasil diambil', $chapters);
         } catch (Throwable $e) {
@@ -24,13 +63,41 @@ class ChapterApiController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         try {
-            $chapter = Chapter::with('acts')->find($id);
+            $chapter = Chapter::with(['acts' => function ($query) {
+                $query->with(['lessons', 'quizzes'])->orderBy('order_number');
+            }])->find($id);
 
             if (!$chapter) {
                 return $this->errorResponse('Data tidak ditemukan', 404);
+            }
+
+            // Jika user_id diberikan, tambahkan is_unlocked dan quiz_progress per Act
+            if ($request->has('user_id')) {
+                $userId = (int) $request->user_id;
+                $chapter->acts = $chapter->acts->map(function ($act) use ($userId) {
+                    $act->is_unlocked = $this->quizService->isActUnlocked($userId, $act);
+
+                    // Ambil quiz progress user untuk Act ini
+                    $quiz = $act->quizzes->first();
+                    $act->quiz_progress = null;
+                    if ($quiz) {
+                        $progress = UserQuizProgress::where('user_id', $userId)
+                            ->where('quiz_id', $quiz->id)
+                            ->first();
+                        if ($progress) {
+                            $act->quiz_progress = [
+                                'score' => $progress->score,
+                                'passed' => $progress->passed,
+                                'completed_at' => $progress->completed_at,
+                            ];
+                        }
+                    }
+
+                    return $act;
+                });
             }
 
             return $this->successResponse('Data berhasil diambil', $chapter);

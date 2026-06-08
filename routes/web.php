@@ -34,6 +34,22 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    // User Learning Routes
+    Route::prefix('user')->name('user.')->group(function () {
+        // Chapters
+        Route::get('/chapters', [ChapterController::class, 'userChapters'])->name('chapters');
+        
+        // Acts
+        Route::get('/acts/{act}', [ActController::class, 'userShow'])->name('acts.show');
+        
+        // Lessons
+        Route::get('/lessons/{lesson}', [LessonController::class, 'userShow'])->name('lessons.show');
+        
+        // Quizzes
+        Route::get('/quizzes/{quiz}', [App\Http\Controllers\Admin\QuizController::class, 'userShow'])->name('quizzes.show');
+        Route::post('/quizzes/{quiz}/submit', [App\Http\Controllers\Admin\QuizController::class, 'userSubmit'])->name('quizzes.submit');
+    });
+
     // User My Progress
     Route::get('/my-progress', [App\Http\Controllers\User\ProgressController::class, 'myProgress'])->name('my-progress');
 

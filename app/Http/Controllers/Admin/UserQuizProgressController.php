@@ -6,10 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\UserQuizProgress;
 use App\Models\User;
 use App\Models\Quiz;
+use App\Services\QuizService;
 use Illuminate\Http\Request;
 
 class UserQuizProgressController extends Controller
 {
+    protected QuizService $quizService;
+
+    public function __construct(QuizService $quizService)
+    {
+        $this->quizService = $quizService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -83,6 +90,9 @@ class UserQuizProgressController extends Controller
             $validated
         );
 
+        // Recalculate total_score user
+        $this->quizService->recalculateTotalScore($validated['user_id']);
+
         return redirect()->route('admin.progresses.index')
             ->with('success', 'Progress quiz berhasil disimpan');
     }
@@ -131,6 +141,9 @@ class UserQuizProgressController extends Controller
 
         $progress->update($validated);
 
+        // Recalculate total_score user
+        $this->quizService->recalculateTotalScore($progress->user_id);
+
         return redirect()->route('admin.progresses.show', $progress->id)
             ->with('success', 'Progress quiz berhasil diperbarui');
     }
@@ -140,7 +153,12 @@ class UserQuizProgressController extends Controller
      */
     public function destroy(UserQuizProgress $progress)
     {
+        $userId = $progress->user_id;
+
         $progress->delete();
+
+        // Recalculate total_score user setelah delete
+        $this->quizService->recalculateTotalScore($userId);
 
         return redirect()->route('admin.progresses.index')
             ->with('success', 'Progress quiz berhasil dihapus');

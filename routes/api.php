@@ -62,8 +62,14 @@ Route::put('/quiz-pairs/{id}', [QuizPairApiController::class, 'update']);
 Route::delete('/quiz-pairs/{id}', [QuizPairApiController::class, 'destroy']);
 
 // ========== API USER QUIZ PROGRESS ENDPOINTS ==========
+// Submit quiz (jawab quiz dan hitung score otomatis)
+Route::post('/user-progress/submit-quiz', [UserQuizProgressApiController::class, 'submitQuiz']);
+// Ringkasan progress user
+Route::get('/user-progress/summary/{userId}', [UserQuizProgressApiController::class, 'userSummary']);
+// CRUD
 Route::get('/user-progress', [UserQuizProgressApiController::class, 'index']);
 Route::get('/user-progress/{id}', [UserQuizProgressApiController::class, 'show']);
 Route::post('/user-progress', [UserQuizProgressApiController::class, 'store']);
 Route::put('/user-progress/{id}', [UserQuizProgressApiController::class, 'update']);
 Route::delete('/user-progress/{id}', [UserQuizProgressApiController::class, 'destroy']);
+

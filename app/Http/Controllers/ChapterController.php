@@ -3,12 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chapter;
+use App\Models\UserQuizProgress;
+use App\Services\QuizService;
 use Illuminate\Http\Request;
 
 class ChapterController extends Controller
 {
+    protected $quizService;
+
+    public function __construct(QuizService $quizService)
+    {
+        $this->quizService = $quizService;
+    }
+
     /**
-     * Display a listing of the chapters.
+     * Display a listing of the chapters for USER (dengan progress).
+     */
+    public function userChapters()
+    {
+        $userId = auth()->id();
+        $chapters = Chapter::with(['acts' => function($query) {
+            $query->with(['quiz', 'lessons'])->orderBy('order_number');
+        }])->orderBy('order_number')->get();
+
+        // Map progress untuk setiap act
+        $actProgress = [];
+        foreach ($chapters as $chapter) {
+            foreach ($chapter->acts as $act) {
+                if ($act->quiz) {
+                    $progress = UserQuizProgress::where('user_id', $userId)
+                        ->where('quiz_id', $act->quiz->id)
+                        ->first();
+                    
+                    $actProgress[$act->id] = [
+                        'completed' => $progress ? true : false,
+                        'passed' => $progress ? $progress->passed : false,
+                        'score' => $progress ? $progress->score : 0,
+                        'unlocked' => $this->quizService->isActUnlocked($userId, $act),
+                    ];
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'chapters' => $chapters,
+                'act_progress' => $actProgress,
+                'user_total_score' => auth()->user()->total_score,
+            ],
+        ]);
+    }
+
+    /**
+     * Display a listing of the chapters. (ADMIN)
      */
     public function index()
     {

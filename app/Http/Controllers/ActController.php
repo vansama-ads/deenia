@@ -4,12 +4,63 @@ namespace App\Http\Controllers;
 
 use App\Models\Act;
 use App\Models\Chapter;
+use App\Models\UserQuizProgress;
+use App\Services\QuizService;
 use Illuminate\Http\Request;
 
 class ActController extends Controller
 {
+    protected $quizService;
+
+    public function __construct(QuizService $quizService)
+    {
+        $this->quizService = $quizService;
+    }
+
     /**
-     * Display a listing of acts grouped by chapters.
+     * Show act untuk USER (dengan check unlock).
+     */
+    public function userShow(Act $act)
+    {
+        $userId = auth()->id();
+
+        // Check apakah user bisa akses act ini
+        if (!$this->quizService->isActUnlocked($userId, $act)) {
+            $previousAct = $act->previousAct();
+            return response()->json([
+                'success' => false,
+                'message' => 'Selesaikan Act sebelumnya terlebih dahulu!',
+                'data' => [
+                    'required_act' => $previousAct ? $previousAct->name : null,
+                ],
+            ], 403);
+        }
+
+        $act->load(['lessons' => function($query) {
+            $query->orderBy('created_at');
+        }, 'quiz']);
+
+        $userId = auth()->id();
+        $quizProgress = null;
+        if ($act->quiz) {
+            $quizProgress = UserQuizProgress::where('user_id', $userId)
+                ->where('quiz_id', $act->quiz->id)
+                ->first();
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'act' => $act,
+                'quiz_progress' => $quizProgress,
+                'lessons_count' => $act->lessons->count(),
+                'unlocked' => true,
+            ],
+        ]);
+    }
+
+    /**
+     * Display a listing of acts grouped by chapters. (ADMIN)
      */
     public function index()
     {

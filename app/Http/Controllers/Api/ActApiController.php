@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Act;
+use App\Models\Quiz;
+use App\Models\UserQuizProgress;
+use App\Services\QuizService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -11,7 +14,13 @@ use Throwable;
 
 class ActApiController extends Controller
 {
-    public function index()
+    protected QuizService $quizService;
+
+    public function __construct(QuizService $quizService)
+    {
+        $this->quizService = $quizService;
+    }
+    public function index(Request $request)
     {
         try {
             $acts = Act::with(['chapter', 'lessons', 'quizzes'])
@@ -19,19 +28,73 @@ class ActApiController extends Controller
                 ->orderBy('order_number')
                 ->get();
 
+            // Jika user_id diberikan, tambahkan status unlock dan quiz progress
+            if ($request->has('user_id')) {
+                $userId = (int) $request->user_id;
+                $acts = $acts->map(function ($act) use ($userId) {
+                    $act->is_unlocked = $this->quizService->isActUnlocked($userId, $act);
+
+                    // Ambil quiz progress user untuk Act ini
+                    $quiz = $act->quizzes->first();
+                    $act->quiz_progress = null;
+                    if ($quiz) {
+                        $progress = UserQuizProgress::where('user_id', $userId)
+                            ->where('quiz_id', $quiz->id)
+                            ->first();
+                        if ($progress) {
+                            $act->quiz_progress = [
+                                'score' => $progress->score,
+                                'passed' => $progress->passed,
+                                'completed_at' => $progress->completed_at,
+                            ];
+                        }
+                    }
+
+                    return $act;
+                });
+            }
+
             return $this->successResponse('Data berhasil diambil', $acts);
         } catch (Throwable $e) {
             return $this->errorResponse('Data gagal diambil', 500);
         }
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         try {
             $act = Act::with(['chapter', 'lessons', 'quizzes'])->find($id);
 
             if (!$act) {
                 return $this->errorResponse('Data tidak ditemukan', 404);
+            }
+
+            // Jika user_id diberikan, cek anti-skip
+            if ($request->has('user_id')) {
+                $userId = (int) $request->user_id;
+                $isUnlocked = $this->quizService->isActUnlocked($userId, $act);
+
+                if (!$isUnlocked) {
+                    return $this->errorResponse('Selesaikan Act sebelumnya terlebih dahulu.', 403);
+                }
+
+                $act->is_unlocked = true;
+
+                // Ambil quiz progress user untuk Act ini
+                $quiz = $act->quizzes->first();
+                $act->quiz_progress = null;
+                if ($quiz) {
+                    $progress = UserQuizProgress::where('user_id', $userId)
+                        ->where('quiz_id', $quiz->id)
+                        ->first();
+                    if ($progress) {
+                        $act->quiz_progress = [
+                            'score' => $progress->score,
+                            'passed' => $progress->passed,
+                            'completed_at' => $progress->completed_at,
+                        ];
+                    }
+                }
             }
 
             return $this->successResponse('Data berhasil diambil', $act);

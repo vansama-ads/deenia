@@ -52,4 +52,16 @@ class Act extends Model
     {
         return $this->hasMany(Quiz::class);
     }
+
+    /**
+     * Get the previous act in the same chapter based on order_number.
+     * Returns null if this is the first act.
+     */
+    public function previousAct(): ?self
+    {
+        return static::where('chapter_id', $this->chapter_id)
+            ->where('order_number', '<', $this->order_number)
+            ->orderByDesc('order_number')
+            ->first();
+    }
 }

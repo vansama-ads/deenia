@@ -4,12 +4,49 @@ namespace App\Http\Controllers;
 
 use App\Models\Lesson;
 use App\Models\Act;
+use App\Services\QuizService;
 use Illuminate\Http\Request;
 
 class LessonController extends Controller
 {
+    protected $quizService;
+
+    public function __construct(QuizService $quizService)
+    {
+        $this->quizService = $quizService;
+    }
+
     /**
-     * Display a listing of lessons.
+     * Show lesson untuk USER (dengan check unlock).
+     */
+    public function userShow(Lesson $lesson)
+    {
+        $userId = auth()->id();
+        $act = $lesson->act;
+
+        // Check apakah user bisa akses lesson ini
+        if (!$this->quizService->isActUnlocked($userId, $act)) {
+            $previousAct = $act->previousAct();
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda belum bisa mengakses pelajaran ini!',
+                'data' => [
+                    'required_act' => $previousAct ? $previousAct->name : null,
+                ],
+            ], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'lesson' => $lesson,
+                'act' => $act,
+            ],
+        ]);
+    }
+
+    /**
+     * Display a listing of lessons. (ADMIN)
      */
     public function index()
     {
