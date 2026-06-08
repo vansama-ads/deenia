@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Lesson;
 use App\Models\Act;
+use App\Models\Quiz;
+use App\Models\UserQuizProgress;
 use App\Services\QuizService;
 use Illuminate\Http\Request;
 
@@ -21,28 +23,64 @@ class LessonController extends Controller
      */
     public function userShow(Lesson $lesson)
     {
-        $userId = auth()->id();
+        $user = auth()->user();
+        $userId = $user->id;
+
+        $lesson->loadMissing(['act.chapter', 'act.quiz']);
         $act = $lesson->act;
+
+        abort_unless($act, 404);
 
         // Check apakah user bisa akses lesson ini
         if (!$this->quizService->isActUnlocked($userId, $act)) {
-            $previousAct = $act->previousAct();
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda belum bisa mengakses pelajaran ini!',
-                'data' => [
-                    'required_act' => $previousAct ? $previousAct->name : null,
-                ],
-            ], 403);
+            abort(403, 'Anda belum bisa mengakses pelajaran ini!');
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'lesson' => $lesson,
-                'act' => $act,
-            ],
+        $nextLesson = Lesson::where('act_id', $act->id)
+            ->where('id', '>', $lesson->id)
+            ->orderBy('id')
+            ->first();
+
+        $quiz = $nextLesson ? null : $act->quiz()->firstOrFail();
+
+        return view('user.lesson-show', [
+            'user' => $user,
+            'lesson' => $lesson,
+            'act' => $act,
+            'chapter' => $act->chapter,
+            'summary' => $this->buildUserSummary($userId),
+            'userLevel' => $this->resolveUserLevel((int) $user->total_score),
+            'continueUrl' => $nextLesson
+                ? route('user.lessons.show', $nextLesson)
+                : route('user.quizzes.show', $quiz),
         ]);
+    }
+
+    private function buildUserSummary(int $userId): array
+    {
+        $quizProgress = UserQuizProgress::where('user_id', $userId)->get();
+        $passedQuizIds = $quizProgress->where('passed', true)->pluck('quiz_id');
+        $completedActIds = Quiz::whereIn('id', $passedQuizIds)->pluck('act_id');
+
+        $totalQuizzes = Quiz::count();
+        $completedQuizzes = $quizProgress->count();
+        $passedQuizzes = $quizProgress->where('passed', true)->count();
+        $totalLessons = Lesson::count();
+        $completedLessons = Lesson::whereIn('act_id', $completedActIds)->count();
+
+        return [
+            'total_quizzes' => $totalQuizzes,
+            'completed_quizzes' => $completedQuizzes,
+            'passed_quizzes' => $passedQuizzes,
+            'total_lessons' => $totalLessons,
+            'completed_lessons' => $completedLessons,
+            'progress_percentage' => $totalQuizzes > 0 ? round(($passedQuizzes / $totalQuizzes) * 100) : 0,
+        ];
+    }
+
+    private function resolveUserLevel(int $totalScore): int
+    {
+        return max(1, intdiv($totalScore, 500) + 1);
     }
 
     /**
