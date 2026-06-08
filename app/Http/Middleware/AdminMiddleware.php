@@ -20,7 +20,7 @@ class AdminMiddleware
             return $next($request);
         }
 
-        // Jika bukan admin, redirect ke dashboard dengan pesan error
-        return redirect('/dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        // Jika bukan admin, redirect ke halaman belajar utama.
+        return redirect()->route('learn')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
     }
 }

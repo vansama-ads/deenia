@@ -50,7 +50,7 @@ class AuthController extends Controller
         // Login user secara otomatis setelah register
         Auth::login($user);
 
-        return redirect()->route('dashboard')->with('success', 'Registrasi berhasil!');
+        return redirect()->route('learn')->with('success', 'Registrasi berhasil!');
     }
 
     /**
@@ -89,7 +89,7 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard')->with('success', 'Login berhasil!');
             }
 
-            return redirect()->route('dashboard')->with('success', 'Login berhasil!');
+            return redirect()->route('learn')->with('success', 'Login berhasil!');
         }
 
         // Jika gagal, kembalikan ke halaman login dengan error

@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\ActController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\User\LearnController;
 use App\Models\Act;
 use App\Models\Chapter;
 use App\Models\Lesson;
@@ -29,10 +30,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ========== ROUTES USER (MEMERLUKAN LOGIN) ==========
 Route::middleware('auth')->group(function () {
-    // Dashboard User
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // User Learn Dashboard
+    Route::get('/learn', [LearnController::class, 'index'])->name('learn');
+    Route::get('/dashboard', fn () => redirect()->route('learn'))->name('dashboard');
 
     // User Learning Routes
     Route::prefix('user')->name('user.')->group(function () {
