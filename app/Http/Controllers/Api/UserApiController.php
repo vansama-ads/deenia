@@ -75,7 +75,10 @@ class UserApiController extends Controller
             $validator = Validator::make($request->all(), [
                 'nickname' => 'required|string|max:255|unique:users',
                 'email' => 'required|email|max:255|unique:users',
-                'password' => 'required|string|min:6'
+                'password' => 'required|string|min:6',
+                'gender' => 'nullable|string',
+                'tanggal_lahir' => 'nullable|date',
+                'avatar' => 'nullable|string'
             ]);
 
             if ($validator->fails()) {
@@ -91,8 +94,11 @@ class UserApiController extends Controller
                 'nickname' => $request->nickname,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => 'user' // default role
-            ]);
+                'role' => 'user',
+                'gender' => $request->gender,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'avatar' => $request->avatar
+            ]); 
 
             // Load user untuk response (tanpa password)
             $user = User::select('id', 'nickname', 'email', 'role', 'gender', 'tanggal_lahir', 'avatar', 'total_score', 'created_at')
@@ -130,11 +136,12 @@ class UserApiController extends Controller
 
             // Validasi input
             $validator = Validator::make($request->all(), [
-                'nickname' => 'sometimes|required|string|max:255|unique:users,nickname,' . $id,
-                'email' => 'sometimes|required|email|max:255|unique:users,email,' . $id,
-                'password' => 'sometimes|string|min:6',
-                'gender' => 'sometimes|in:male,female,other',
-                'tanggal_lahir' => 'sometimes|date'
+                'nickname' => 'required|string|max:255|unique:users',
+                'email' => 'required|email|max:255|unique:users',
+                'password' => 'nullable|string|min:6',
+                'gender' => 'nullable|string',
+                'tanggal_lahir' => 'nullable|date',
+                'avatar' => 'nullable|string'
             ]);
 
             if ($validator->fails()) {
