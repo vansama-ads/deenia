@@ -3,12 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\QuizPairRequest;
 use App\Models\Quiz;
 use App\Models\QuizPair;
+use Illuminate\Http\Request;
 
 class QuizPairController extends Controller
 {
+    public function allIndex()
+    {
+        $pairs = QuizPair::with(['quiz.act.chapter'])
+            ->latest()
+            ->paginate(15);
+
+        return view('admin.quizzes.pairs.all-index', compact('pairs'));
+    }
+
     public function index(Quiz $quiz)
     {
         $pairs = $quiz->pairs()->paginate(10);

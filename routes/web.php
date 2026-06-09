@@ -123,6 +123,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         'destroy' => 'quizzes.destroy',
     ]);
 
+    // Admin QuizPairs
+    Route::get('quiz-pairs', [App\Http\Controllers\Admin\QuizPairController::class, 'allIndex'])->name('quiz-pairs.index');
+
     // Admin QuizPairs (nested under quizzes)
     Route::get('quizzes/{quiz}/pairs', [App\Http\Controllers\Admin\QuizPairController::class, 'index'])->name('quizzes.pairs.index');
     Route::get('quizzes/{quiz}/pairs/create', [App\Http\Controllers\Admin\QuizPairController::class, 'create'])->name('quizzes.pairs.create');
