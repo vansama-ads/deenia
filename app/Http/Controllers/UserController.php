@@ -2,23 +2,76 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    private const DEFAULT_AVATAR = 'avatars/default.jpg';
+
     /**
      * Menentukan view path berdasarkan route prefix (admin atau user)
      */
     private function getViewPath($view)
     {
         // Cek apakah route berawalan 'admin.'
-        if (strpos(request()->route()->getName(), 'admin.') === 0) {
+        if ($this->isAdminRoute()) {
             return 'admin.users.' . $view;
         }
         return 'users.' . $view;
+    }
+
+    private function isAdminRoute(): bool
+    {
+        return strpos(request()->route()?->getName() ?? '', 'admin.') === 0;
+    }
+
+    private function ensureOwnProfile(int|string $id): void
+    {
+        abort_if((int) $id !== (int) auth()->id(), 403);
+    }
+
+    private function buildProfilePayload(User $user): array
+    {
+        $latestProgress = $user->quizProgress()
+            ->with(['quiz.act.chapter'])
+            ->whereHas('quiz.act.chapter')
+            ->orderByDesc('completed_at')
+            ->orderByDesc('updated_at')
+            ->first();
+
+        $progressRecords = $user->quizProgress()->get();
+        $totalQuizzes = Quiz::count();
+        $completedQuizzes = $progressRecords->count();
+        $passedQuizzes = $progressRecords->where('passed', true)->count();
+
+        return [
+            'latestProgress' => $latestProgress,
+            'currentQuiz' => $latestProgress?->quiz,
+            'currentAct' => $latestProgress?->quiz?->act,
+            'currentChapter' => $latestProgress?->quiz?->act?->chapter,
+            'progressSummary' => [
+                'total_quizzes' => $totalQuizzes,
+                'completed_quizzes' => $completedQuizzes,
+                'passed_quizzes' => $passedQuizzes,
+                'progress_percentage' => $totalQuizzes > 0 ? round(($passedQuizzes / $totalQuizzes) * 100) : 0,
+            ],
+        ];
+    }
+
+    private function deleteCustomAvatar(?string $avatar): void
+    {
+        if (!$avatar || $avatar === self::DEFAULT_AVATAR) {
+            return;
+        }
+
+        if (Storage::disk('public')->exists($avatar)) {
+            Storage::disk('public')->delete($avatar);
+        }
     }
 
     /**
@@ -90,6 +143,17 @@ class UserController extends Controller
      */
     public function show($id)
     {
+        if (!$this->isAdminRoute()) {
+            $this->ensureOwnProfile($id);
+
+            $user = auth()->user()->fresh();
+
+            return view('user.profile', [
+                'user' => $user,
+                ...$this->buildProfilePayload($user),
+            ]);
+        }
+
         $user = User::findOrFail($id);
         return view($this->getViewPath('show'), compact('user'));
     }
@@ -99,6 +163,12 @@ class UserController extends Controller
      */
     public function edit($id)
     {
+        if (!$this->isAdminRoute()) {
+            $this->ensureOwnProfile($id);
+
+            return redirect()->route('users.show', auth()->id());
+        }
+
         $user = User::findOrFail($id);
         return view($this->getViewPath('edit'), compact('user'));
     }
@@ -109,7 +179,7 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $isAdmin = strpos(request()->route()->getName(), 'admin.') === 0;
+        $isAdmin = $this->isAdminRoute();
 
         if ($isAdmin) {
             // Validasi untuk admin
@@ -138,28 +208,42 @@ class UserController extends Controller
 
             $user->update($data);
         } else {
+            $this->ensureOwnProfile($id);
+
             // Validasi untuk user
-            $request->validate([
-                'nickname' => 'required',
-                'email' => 'required|email|unique:users,email,' . $id,
-                'tanggal_lahir' => 'nullable|date',
-                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            $validated = $request->validate([
+                'nickname' => [
+                    'required',
+                    'string',
+                    'max:50',
+                    Rule::unique('users', 'nickname')->ignore($user->id),
+                ],
+                'email' => [
+                    'required',
+                    'email',
+                    'max:255',
+                    Rule::unique('users', 'email')->ignore($user->id),
+                ],
+                'gender' => ['nullable', Rule::in(['male', 'female'])],
+                'tanggal_lahir' => ['nullable', 'date'],
+                'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             ]);
 
-            $data = $request->only(['nickname', 'email', 'gender', 'tanggal_lahir']);
-
-            if ($request->filled('password')) {
-                $data['password'] = Hash::make($request->password);
-            }
+            $data = [
+                'nickname' => $validated['nickname'],
+                'email' => $validated['email'],
+                'gender' => $validated['gender'] ?? null,
+                'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
+            ];
 
             if ($request->hasFile('avatar')) {
-                if ($user->avatar) {
-                    Storage::delete('public/' . $user->avatar);
-                }
                 $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+                $this->deleteCustomAvatar($user->avatar);
             }
 
             $user->update($data);
+
+            return redirect()->route('users.show', $user->id)->with('success', 'Profil berhasil diperbarui!');
         }
 
         $routeName = $isAdmin ? 'admin.users.index' : 'users.index';
@@ -172,7 +256,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        $isAdmin = strpos(request()->route()->getName(), 'admin.') === 0;
+        $isAdmin = $this->isAdminRoute();
 
         // Hapus avatar jika ada
         if ($user->avatar) {
@@ -190,12 +274,14 @@ class UserController extends Controller
      */
     public function updateRole(Request $request, $id)
     {
+        abort_if(!$this->isAdminRoute(), 403);
+
         $request->validate([
             'role' => 'required|in:user,admin,moderator',
         ]);
 
         $user = User::findOrFail($id);
-        $isAdmin = strpos(request()->route()->getName(), 'admin.') === 0;
+        $isAdmin = $this->isAdminRoute();
 
         $user->update(['role' => $request->role]);
 
