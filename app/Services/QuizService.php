@@ -17,7 +17,6 @@ class QuizService
     {
         $quiz = Quiz::with('pairs')->findOrFail($quizId);
 
-        // Hitung score
         $correct = 0;
         foreach ($quiz->pairs as $pair) {
             if (isset($answers[$pair->id]) && $answers[$pair->id] === $pair->right_text) {
@@ -28,34 +27,22 @@ class QuizService
         $score = $total > 0 ? intval(($correct / $total) * 100) : 0;
         $passed = $score >= 70;
 
-        // Transaction untuk update progress & total_score
         return DB::transaction(function () use ($userId, $quizId, $score, $passed) {
-            $progress = UserQuizProgress::where('user_id', $userId)
-                ->where('quiz_id', $quizId)
-                ->first();
-
-            $now = now();
-
-            if ($progress) {
-                if ($score > $progress->score) {
-                    $scoreDiff = $score - $progress->score;
-                    $progress->update([
-                        'score' => $score,
-                        'passed' => $passed,
-                        'completed_at' => $now,
-                    ]);
-                    $progress->user->increment('total_score', $scoreDiff);
-                }
-            } else {
-                $progress = UserQuizProgress::create([
+            $progress = UserQuizProgress::updateOrCreate(
+                [
+                    'user_id' => $userId,
+                    'quiz_id' => $quizId,
+                ],
+                [
                     'user_id' => $userId,
                     'quiz_id' => $quizId,
                     'score' => $score,
                     'passed' => $passed,
-                    'completed_at' => $now,
-                ]);
-                $progress->user->increment('total_score', $score);
-            }
+                    'completed_at' => now(),
+                ]
+            );
+
+            $this->recalculateTotalScore($userId);
 
             return $progress;
         });
@@ -138,4 +125,3 @@ class QuizService
         ];
     }
 }
-
