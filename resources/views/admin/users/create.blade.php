@@ -7,103 +7,73 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h2 class="card-title">➕ Tambah User Baru</h2>
+            <h2 class="card-title">Tambah User Baru</h2>
         </div>
 
-        <div style="padding: 20px;">
-            <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data">
+        <div class="admin-card-body">
+            <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data" class="admin-form">
                 @csrf
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Nama Pengguna</label>
-                    <input 
-                        type="text" 
-                        name="nickname" 
-                        value="{{ old('nickname') }}"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                        required
-                    >
+                <div class="form-group">
+                    <label for="nickname">Nama Pengguna</label>
+                    <input type="text" id="nickname" name="nickname" value="{{ old('nickname') }}"
+                        class="form-control @error('nickname') is-invalid @enderror" required>
                     @error('nickname')
-                        <div style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Email</label>
-                    <input 
-                        type="email" 
-                        name="email" 
-                        value="{{ old('email') }}"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                        required
-                    >
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}"
+                        class="form-control @error('email') is-invalid @enderror" required>
                     @error('email')
-                        <div style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Password</label>
-                    <input 
-                        type="password" 
-                        name="password"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                        required
-                    >
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password"
+                        class="form-control @error('password') is-invalid @enderror" required>
                     @error('password')
-                        <div style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Konfirmasi Password</label>
-                    <input 
-                        type="password" 
-                        name="password_confirmation"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                        required
-                    >
+                <div class="form-group">
+                    <label for="password_confirmation">Konfirmasi Password</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Tanggal Lahir</label>
-                    <input 
-                        type="date" 
-                        name="tanggal_lahir"
-                        value="{{ old('tanggal_lahir') }}"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                    >
+                <div class="form-group">
+                    <label for="tanggal_lahir">Tanggal Lahir</label>
+                    <input type="date" id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}"
+                        class="form-control @error('tanggal_lahir') is-invalid @enderror">
                     @error('tanggal_lahir')
-                        <div style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Avatar</label>
-                    <input 
-                        type="file" 
-                        name="avatar"
-                        accept="image/*"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                    >
-                    <div style="color: #666; font-size: 12px; margin-top: 5px;">Format: JPG, PNG, GIF (Max 2MB)</div>
+                <div class="form-group">
+                    <label for="avatar">Avatar</label>
+                    <input type="file" id="avatar" name="avatar" accept="image/*"
+                        class="form-control @error('avatar') is-invalid @enderror">
+                    <div class="form-text">Format: JPG, PNG, GIF (Max 2MB)</div>
                     @error('avatar')
-                        <div style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Role</label>
-                    <select 
-                        name="role"
-                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                    >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" class="form-select">
+                        <option value="user" @if(old('role') === 'user') selected @endif>User</option>
+                        <option value="admin" @if(old('role') === 'admin') selected @endif>Admin</option>
                     </select>
                 </div>
 
-                <div style="display: flex; gap: 10px;">
+                <div class="form-actions">
                     <button type="submit" class="btn btn-success">Simpan User</button>
                     <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Batal</a>
                 </div>
