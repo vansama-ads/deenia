@@ -52,9 +52,9 @@ RUN set -eux; \
         zip; \
     pecl install redis; \
     docker-php-ext-enable redis; \
-    a2enmod headers remoteip rewrite; \
-    a2dismod mpm_event mpm_worker mpm_prefork; \
+    a2dismod mpm_event mpm_worker; \
     a2enmod mpm_prefork; \
+    a2enmod headers remoteip rewrite; \
     rm -rf /var/lib/apt/lists/* /tmp/pear ~/.pearrc
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
