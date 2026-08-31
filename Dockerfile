@@ -27,19 +27,19 @@ WORKDIR /var/www/html
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
-        git \
-        unzip \
-        libcurl4-openssl-dev \
-        libfreetype6-dev \
-        libicu-dev \
-        libjpeg62-turbo-dev \
-        libonig-dev \
-        libpng-dev \
-        libwebp-dev \
-        libzip-dev \
-        libzip-dev; \
+    ca-certificates \
+    curl \
+    git \
+    unzip \
+    libcurl4-openssl-dev \
+    libfreetype6-dev \
+    libicu-dev \
+    libjpeg62-turbo-dev \
+    libonig-dev \
+    libpng-dev \
+    libwebp-dev \
+    libzip-dev \
+    libpq-dev;
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp; \
     docker-php-ext-install -j"$(nproc)" \
         bcmath \
