@@ -32,7 +32,7 @@ run_as_www_data() {
     su -s /bin/sh www-data -c "$*"
 }
 
-run_as_www_data "php artisan storage:link --force --ansi" || true
+# run_as_www_data "php artisan storage:link --force --ansi" || true
 
 run_as_www_data "php artisan config:clear --ansi"
 run_as_www_data "php artisan route:clear --ansi"
