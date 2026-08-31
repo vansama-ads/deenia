@@ -39,7 +39,7 @@ RUN set -eux; \
     libpng-dev \
     libwebp-dev \
     libzip-dev \
-    libpq-dev;
+    libpq-dev; \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp; \
     docker-php-ext-install -j"$(nproc)" \
         bcmath \
