@@ -38,6 +38,7 @@ RUN set -eux; \
         libonig-dev \
         libpng-dev \
         libwebp-dev \
+        libzip-dev \
         libzip-dev; \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp; \
     docker-php-ext-install -j"$(nproc)" \
@@ -48,7 +49,7 @@ RUN set -eux; \
         mbstring \
         opcache \
         pcntl \
-        pdo_mysql \
+        pdo_pgsql \
         zip; \
     pecl install redis; \
     docker-php-ext-enable redis; \
