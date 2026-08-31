@@ -52,7 +52,10 @@ RUN set -eux; \
         zip; \
     pecl install redis; \
     docker-php-ext-enable redis; \
-    a2dismod mpm_event mpm_worker; \
+    rm -f /etc/apache2/mods-enabled/mpm_event.conf \
+      /etc/apache2/mods-enabled/mpm_event.load \
+      /etc/apache2/mods-enabled/mpm_worker.conf \
+      /etc/apache2/mods-enabled/mpm_worker.load; \
     a2enmod mpm_prefork; \
     a2enmod headers remoteip rewrite; \
     rm -rf /var/lib/apt/lists/* /tmp/pear ~/.pearrc
