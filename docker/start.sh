@@ -48,4 +48,10 @@ else
     run_as_www_data "php artisan route:clear --ansi" || true
 fi
 
+echo "=== APACHE MPM MODULES ==="
+ls -la /etc/apache2/mods-enabled/ | grep mpm || true
+echo "=== APACHE MODULE LIST ==="
+apache2ctl -M 2>&1 | grep mpm || true
+echo "=========================="
+
 exec apache2-foreground
