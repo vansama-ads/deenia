@@ -54,4 +54,14 @@ echo "=== APACHE MODULE LIST ==="
 apache2ctl -M 2>&1 | grep mpm || true
 echo "=========================="
 
+echo "=== FIXING APACHE MPM ==="
+
+rm -f /etc/apache2/mods-enabled/mpm_event.conf
+rm -f /etc/apache2/mods-enabled/mpm_event.load
+
+echo "=== APACHE MPM AFTER FIX ==="
+ls -la /etc/apache2/mods-enabled/ | grep mpm || true
+
+
+
 exec apache2-foreground
