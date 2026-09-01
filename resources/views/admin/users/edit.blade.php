@@ -45,7 +45,7 @@
                 <div class="form-group">
                     <label for="avatar">Avatar</label>
                     @if($user->avatar)
-                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" class="avatar-preview">
+                        <img src="{{ $user->avatar_url }}" alt="Avatar" class="avatar-preview">
                     @endif
                     <input type="file" id="avatar" name="avatar" accept="image/*"
                         class="form-control @error('avatar') is-invalid @enderror">

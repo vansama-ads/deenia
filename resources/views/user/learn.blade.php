@@ -8,9 +8,7 @@
 
 @section('content')
     @php
-        $avatarUrl = $user->avatar
-            ? asset('storage/' . $user->avatar)
-            : asset('assets/images/mascot-wave.webp');
+        $avatarUrl = $user->avatar_url;
         $activeActState = $activeAct ? ($actStateById[$activeAct->id] ?? null) : null;
         $activeActProgress = $activeActState['quiz_progress'] ?? null;
         $startLesson = $activeAct?->lessons->first();

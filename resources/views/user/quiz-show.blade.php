@@ -8,9 +8,7 @@
 
 @section('content')
     @php
-        $avatarUrl = $user->avatar
-            ? asset('storage/' . $user->avatar)
-            : asset('assets/images/mascot-wave.webp');
+        $avatarUrl = $user->avatar_url;
         $result = session('quiz_result');
         $pairCount = max(1, $pairs->count());
         $answeredCount = $result ? $result['total'] : 1;

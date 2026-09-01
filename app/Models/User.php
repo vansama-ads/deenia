@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+
 
 class User extends Authenticatable
 {
@@ -59,6 +61,16 @@ class User extends Authenticatable
         ];
     }
 
+public function getAvatarUrlAttribute(): string
+{
+    if (!$this->avatar || $this->avatar === 'avatars/default.jpg') {
+        return asset('storage/avatars/default.jpg');
+    }
 
+    return Storage::disk('b2')->temporaryUrl(
+        $this->avatar,
+        now()->addMinutes(30)
+    );
+}
 
 }

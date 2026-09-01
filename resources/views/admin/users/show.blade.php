@@ -14,7 +14,7 @@
             <div class="detail-grid">
                 <div class="text-center">
                     @if($user->avatar)
-                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" class="avatar avatar-lg">
+                        <img src="{{ $user->avatar_url }}" alt="Avatar" class="avatar avatar-lg">
                     @else
                         <div class="avatar-placeholder avatar-lg">No Avatar</div>
                     @endif

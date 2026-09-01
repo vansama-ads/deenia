@@ -34,7 +34,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>
                                         @if($user->avatar)
-                                            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" class="avatar">
+                                            <img src="{{ $user->avatar_url }}" alt="Avatar" class="avatar">
                                         @else
                                             <div class="avatar-placeholder">No Image</div>
                                         @endif

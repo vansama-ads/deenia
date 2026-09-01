@@ -27,7 +27,7 @@
         <input type="file" name="avatar" accept="image/*"><br>
         @if ($user->avatar)
             <p>Current Avatar:</p>
-            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" width="100">
+            <img src="{{ $user->avatar_url }}" alt="Avatar" width="100">
         @endif
 
         <button type="submit">Update</button>

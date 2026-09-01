@@ -69,8 +69,8 @@ class UserController extends Controller
             return;
         }
 
-        if (Storage::disk('public')->exists($avatar)) {
-            Storage::disk('public')->delete($avatar);
+        if (Storage::disk('b2')->exists($avatar)) {
+            Storage::disk('b2')->delete($avatar);
         }
     }
 
@@ -129,7 +129,7 @@ class UserController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
-            $path = $request->file('avatar')->store('avatars', 'public');
+            $path = $request->file('avatar')->store('avatars', 'b2');
             $user->avatar = $path;
             $user->save();
         }
@@ -201,9 +201,9 @@ class UserController extends Controller
             // Handle avatar upload
             if ($request->hasFile('avatar')) {
                 if ($user->avatar) {
-                    Storage::delete('public/' . $user->avatar);
+                    Storage::delete('b2' . $user->avatar);
                 }
-                $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+                $data['avatar'] = $request->file('avatar')->store('avatars', 'b2');
             }
 
             $user->update($data);
@@ -237,7 +237,7 @@ class UserController extends Controller
             ];
 
             if ($request->hasFile('avatar')) {
-                $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+                $data['avatar'] = $request->file('avatar')->store('avatars', 'b2');
                 $this->deleteCustomAvatar($user->avatar);
             }
 
@@ -260,7 +260,7 @@ class UserController extends Controller
 
         // Hapus avatar jika ada
         if ($user->avatar) {
-            Storage::delete('public/' . $user->avatar);
+            Storage::delete('b2' . $user->avatar);
         }
 
         $user->delete();

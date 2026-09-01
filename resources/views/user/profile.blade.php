@@ -8,9 +8,7 @@
 
 @section('content')
     @php
-        $avatarUrl = $user->avatar
-            ? asset('storage/' . $user->avatar)
-            : asset('assets/images/mascot-wave.webp');
+        $avatarUrl = $user->avatar_url;
         $joinedDate = $user->created_at
             ? $user->created_at->locale('id')->translatedFormat('d F Y')
             : '-';
