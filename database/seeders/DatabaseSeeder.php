@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
                     UserSeeder::class,
                     ChapterSeeder::class,
                     ActSeeder::class,
+                    LessonSeeder::class,
                     QuizSeeder::class,
                     QuizPairSeeder::class,
         ]);
