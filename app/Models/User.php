@@ -64,7 +64,7 @@ class User extends Authenticatable
 public function getAvatarUrlAttribute(): string
 {
     if (!$this->avatar || $this->avatar === 'avatars/default.jpg') {
-        return asset('storage/avatars/default.jpg');
+        return asset('avatars/default.jpg');
     }
 
     return Storage::disk('b2')->temporaryUrl(
